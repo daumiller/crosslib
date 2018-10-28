@@ -3,6 +3,9 @@
 #include "crosslib/thread.h"
 #include <Windows.h>
 
+// TODO: should rework this whole thing to use a single watching thread, w/ WaitForMultipleObjects
+//       changeHookCreate adds to list; changeHookFree removes from list, joining thread once empty
+
 // amount of time change hooks will block while waiting for change events
 // - smaller values will return faster from clWatch_changeHookFree(), but eat more cpu time
 // - larger values will spend more time idle, but will take longer to return from clWatch_changeHookFree()
