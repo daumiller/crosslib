@@ -36,7 +36,7 @@ char* clPath_resolve(char* path) {
 	return result;
 }
 
-char* clPath_getHome(void) {
+char* clPath_getHome() {
 	wchar_t* home16 = NULL;
 	HRESULT result = SHGetKnownFolderPath(&FOLDERID_Profile, 0, NULL, &home16);
 	if(result != S_OK) { return NULL; }
@@ -45,7 +45,7 @@ char* clPath_getHome(void) {
 	return home8;
 }
 
-char* clPath_getWorking(void) {
+char* clPath_getWorking() {
 	DWORD length = GetCurrentDirectoryW(0, NULL);
 	if(length == 0) { return NULL; }
 	wchar_t* buffer = malloc(sizeof(wchar_t) * length);

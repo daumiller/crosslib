@@ -14,7 +14,7 @@ bool clThread_threadCreate(clThread_ThreadFunction function, void* data, clThrea
 	return true;
 }
 
-void clThread_threadReturn(void) {
+void clThread_threadReturn() {
 	_endthreadex(0);
 }
 

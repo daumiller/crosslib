@@ -39,8 +39,20 @@ static uint16_t translateKeyCode(clKeyboard_Key key) {
 	return translation[key];
 }
 
+static bool postVKey(uint16_t vkey, clKeyboard_Press press) {
+	INPUT input;
+	input.type           = INPUT_KEYBOARD;
+	input.ki.wVk         = vkey;
+	input.ki.wScan       = 0;
+	input.ki.dwFlags     = (press == CL_KEYBOARD_PRESSED) ? 0 : KEYEVENTF_KEYUP;
+	input.ki.time        = 0;
+	input.ki.dwExtraInfo = NULL;
+
+	return (SendInput(1, &input, sizeof(INPUT)) == 1);
+}
+
 bool clKeyboard_postModifier(clKeyboard_Modifier modifier, clKeyboard_Press press) {
-	static uint32_t windowsModifiers[5] = {
+	static uint16_t windowsModifiers[5] = {
 		0,          // INVALID               = 0
 		VK_SHIFT,   // CL_KEYBOARD_SHIFT     = 1
 		VK_CONTROL, // CL_KEYBOARD_CONTROL   = 2
@@ -49,7 +61,9 @@ bool clKeyboard_postModifier(clKeyboard_Modifier modifier, clKeyboard_Press pres
 	};
 
 	if(!modifier) { return false; }
-	return clKeyboard_postVKey(windowsModifiers[modifier], press);
+	if(!press   ) { return false; }
+
+	return postVKey(windowsModifiers[modifier], press);
 }
 
 bool clKeyboard_postKey(clKeyboard_Key key, clKeyboard_Press press) {
@@ -59,15 +73,7 @@ bool clKeyboard_postKey(clKeyboard_Key key, clKeyboard_Press press) {
 	uint16_t translatedKey = translateKeyCode(key);
 	if(translatedKey == 0) { return false; }
 
-	INPUT input;
-	input.type           = INPUT_KEYBOARD;
-	input.ki.wVk         = translatedKey;
-	input.ki.wScan       = 0;
-	input.ki.dwFlags     = (press == CL_KEYBOARD_PRESSED) ? 0 : KEYEVENTF_KEYUP;
-	input.ki.time        = 0;
-	input.ki.dwExtraInfo = NULL;
-
-	return (SendInput(1, &input, sizeof(INPUT)) == 1);
+	return postVKey(translatedKey, press);
 }
 
 bool clKeyboard_postString(char* string) {
