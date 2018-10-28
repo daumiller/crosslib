@@ -36,5 +36,5 @@ char16_t* clString_utf16from8(char* utf8) {
     NSString* string = [[NSString alloc] initWithBytes:utf8 length:strlen(utf8) encoding:NSUTF8StringEncoding];
     if(!string) { return NULL; }
     NSData* data = [string dataUsingEncoding:NSUTF16StringEncoding];
-    return u16dup((char16_t*)([data bytes]+sizeof(char16_t))); // char offset here -- ignore BOM prepended by NSString
+    return u16dup((char16_t*)([data bytes]+sizeof(char16_t))); // offset here -- ignore BOM prepended by NSString
 }

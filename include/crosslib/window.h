@@ -11,7 +11,7 @@
 typedef struct struct_clWindow_ActiveWindow {
 	/// <summary>Active window's window-title.</summary>
 	char* title;
-	/// <summary>Active window's executable path.</summary>
+	/// <summary>Active window's executable path (Windows) or bundle id (MacOS).</summary>
 	char* program;
 	/// <summary>Active window's PID.</summary>
 	uint64_t pid;
