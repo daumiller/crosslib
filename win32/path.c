@@ -145,8 +145,8 @@ bool clPath_directoryListCreate(char* path, clPath_DirectoryList** list) {
 	for(fileCurr = fileFirst; fileCurr; fileCurr = fileCurr->next) { ++((*list)->fileCount); }
 	for(directoryCurr = directoryFirst; directoryCurr; directoryCurr = directoryCurr->next) { ++((*list)->directoryCount); }
 	
-	(*list)->fileNames = malloc(sizeof(char*) * (*list)->fileCount);
-	(*list)->directoryCount = malloc(sizeof(char*) * (*list)->directoryCount);
+	(*list)->fileNames      = malloc(sizeof(char*) * (*list)->fileCount);
+	(*list)->directoryNames = malloc(sizeof(char*) * (*list)->directoryCount);
 	clPath_DirEntry* currNext;
 
 	fileCurr = fileFirst;

@@ -48,6 +48,10 @@ static void activeHookProxy(HWINEVENTHOOK hook, DWORD event, HWND hwnd, LONG idO
 		activeHookCallback(&activeWindow);
 		clWindow_activeWindowFree(&activeWindow);
 	}
+
+	UNREFERENCED_PARAMETER(hook);
+	UNREFERENCED_PARAMETER(idEventThread);
+	UNREFERENCED_PARAMETER(dwmsEventTime);
 }
 
 bool clWindow_activeHookStart(clWindow_ActiveWindowCallback callback) {
@@ -87,18 +91,17 @@ static HWND hwndGuiLoop = NULL;
 bool clWindow_guiLoopBegin(void* guiData) {
 	HINSTANCE hInst = *((HINSTANCE*)guiData);
 
-	WNDCLASSA classMain = {
-		.style         = 0,
-		.lpfnWndProc   = DefWindowProcA,
-		.cbClsExtra    = 0,
-		.cbWndExtra    = 0,
-		.hInstance     = hInst,
-		.hIcon         = NULL,
-		.hCursor       = NULL,
-		.hbrBackground = NULL,
-		.lpszMenuName  = NULL,
-		.lpszClassName = "crosslib-gui-loop-class"
-	};
+	WNDCLASSA classMain;
+	classMain.style         = 0;
+	classMain.lpfnWndProc   = DefWindowProcA;
+	classMain.cbClsExtra    = 0;
+	classMain.cbWndExtra    = 0;
+	classMain.hInstance     = hInst;
+	classMain.hIcon         = NULL;
+	classMain.hCursor       = NULL;
+	classMain.hbrBackground = NULL;
+	classMain.lpszMenuName  = NULL;
+	classMain.lpszClassName = "crosslib-gui-loop-class";
 	if(RegisterClassA(&classMain) == 0) { return false; }
 
 	hwndGuiLoop = CreateWindowExA(0, "crosslib-gui-loop-class", "crosslib", WS_DISABLED, 0, 0, 32, 32, NULL, NULL, hInst, NULL);

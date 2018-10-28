@@ -26,6 +26,7 @@ bool clThread_threadWait(clThread_ThreadHandle thread) {
 
 void clThread_threadFree(clThread_ThreadHandle thread) {
 	// nothing to do for windows (shouldn't close handle until joined, and no extra data stored in handle pointer)
+	UNREFERENCED_PARAMETER(thread);
 }
 
 //==============================================================================

@@ -7,7 +7,7 @@ bool clProcess_runCommand(char* path, uint32_t argumentCount, char** argumentVal
 	
 	char16_t* wargs = NULL;
 	if(argumentCount) {
-		char16_t* wargumentValues = malloc(sizeof(char16_t*) * argumentCount);
+		char16_t** wargumentValues = malloc(sizeof(char16_t*) * argumentCount);
 		uint32_t wlength = 0;
 		for(uint32_t index=0; index<argumentCount; ++index) {
 			wargumentValues[index] = clString_utf16from8(argumentValues[index]);

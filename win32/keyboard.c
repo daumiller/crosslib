@@ -46,7 +46,7 @@ static bool postVKey(uint16_t vkey, clKeyboard_Press press) {
 	input.ki.wScan       = 0;
 	input.ki.dwFlags     = (press == CL_KEYBOARD_PRESSED) ? 0 : KEYEVENTF_KEYUP;
 	input.ki.time        = 0;
-	input.ki.dwExtraInfo = NULL;
+	input.ki.dwExtraInfo = (ULONG_PTR)NULL;
 
 	return (SendInput(1, &input, sizeof(INPUT)) == 1);
 }
@@ -88,7 +88,7 @@ bool clKeyboard_postString(char* string) {
 		inputs[index].ki.wScan       = utf16[index];
 		inputs[index].ki.dwFlags     = KEYEVENTF_UNICODE;
 		inputs[index].ki.time        = 0;
-		inputs[index].ki.dwExtraInfo = NULL;
+		inputs[index].ki.dwExtraInfo = (ULONG_PTR)NULL;
 	}
 	free(utf16);
 
