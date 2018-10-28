@@ -31,6 +31,7 @@ bool clWindow_activeWindowRead(clWindow_ActiveWindow* window);
 
 /// <summary>Free data used by and active window structure.</summary>
 /// <param name="window">active window structure to clean up</param>
+/// <remarks>This function does not free the clWindow_ActiveWindow structure, since clWindow_activeWindowRead does not allocate it.</remarks>
 void clWindow_activeWindowFree(clWindow_ActiveWindow* window);
 
 /// <summary>Hook into platform updates of active window changes.</summary>

@@ -29,11 +29,12 @@ typedef void (*clWatch_ChangeFunction)(clWatch_ChangeHook* changeHook);
 /// <param name="userData">any data needing passed to the callback function</param>
 /// <param name="hook">location to store newly allocated change hook structure in</param>
 /// <returns>boolean indicating success</returns>
-/// <remarks>Caller is responsible for freeing created structure on success. Individual files cannot be watched; parent directory will notify when any contents are changed.</remarks>
+/// <remarks>Caller is responsible for freeing created structure on success. Individual files cannot be watched; parent directory will notify when any contents are changed. Each created hook spawns a new thread.</remarks>
 bool clWatch_changeHookCreate(char* path, clWatch_ChangeFunction callback, void* userData, clWatch_ChangeHook** hook);
 
 /// <summary>Free data in a change hook container.</summary>
 /// <param name="hook">change hook to free</param>
+/// <remarks>Function will block while waiting for the hook thread to terminate.</remarks>
 void clWatch_changeHookFree(clWatch_ChangeHook* hook);
 
 #endif //CROSSLIB_WATCH_HEADER

@@ -77,7 +77,7 @@ bool clKeyboard_postKey(clKeyboard_Key key, clKeyboard_Press press) {
 }
 
 bool clKeyboard_postString(char* string) {
-	wchar_t* utf16 = clString_utf16from8(string); if(!utf16) { return false; }
+	char16_t* utf16 = clString_utf16from8(string); if(!utf16) { return false; }
 	
 	size_t length = wcslen(utf16);
 	INPUT* inputs = malloc(sizeof(INPUT) * length);
