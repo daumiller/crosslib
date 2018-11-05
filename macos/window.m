@@ -1,6 +1,7 @@
 #include "crosslib/window.h"
 #include <string.h>
 #import <Foundation/Foundation.h>
+#import <AppKit/AppKit.h>
 
 //==============================================================================
 // ACTIVE WINDOW READ
@@ -12,10 +13,10 @@ bool clWindow_activeWindowRead(clWindow_ActiveWindow* window) {
     window->program = NULL;
 
     NSArray* windows = (__bridge_transfer NSArray*)(CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID));
-    for(NSDictionary* window in windows) {
-        if(active.pid == [window[(__bridge NSString*)(kCGWindowOwnerPID)] intValue]) {
-            NSString* title  = window[(__bridge NSString*)(kCGWindowName)];
-            NSString* bundle = [[NSRunningApplication runningApplicationWithProcessIdentifier:active.pid] bundleIdentifier];
+    for(NSDictionary* current in windows) {
+        if(window->pid == [current[(__bridge NSString*)(kCGWindowOwnerPID)] intValue]) {
+            NSString* title  = current[(__bridge NSString*)(kCGWindowName)];
+            NSString* bundle = [[NSRunningApplication runningApplicationWithProcessIdentifier:window->pid] bundleIdentifier];
             if(title)  { window->title   = strdup([title  UTF8String]); }
             if(bundle) { window->program = strdup([bundle UTF8String]); }
             return true;
@@ -40,7 +41,7 @@ void clWindow_activeWindowFree(clWindow_ActiveWindow* window) {
 -(bool)listenIsActive;
 -(void)activeChanged:(NSNotification*)notification;
 @end
-@implementation ForemostListener {
+@implementation ActiveWindowHook {
 	bool running;
 	clWindow_ActiveWindowCallback callback;
 }
@@ -51,9 +52,9 @@ void clWindow_activeWindowFree(clWindow_ActiveWindow* window) {
 	return self;
 }
 
--(bool)listenStart:(clWindow_ActiveWindowCallback)callback {
+-(bool)listenStart:(clWindow_ActiveWindowCallback)userCallback {
 	if(running) { return false; }
-	callback = callback;
+	callback = userCallback;
 	[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(activeChanged:) name:NSWorkspaceDidActivateApplicationNotification object:nil];
 	running = true;
 	return true;
@@ -72,7 +73,7 @@ void clWindow_activeWindowFree(clWindow_ActiveWindow* window) {
 }
 
 -(void)activeChanged:(NSNotification *)notification {
-	static ActiveWindowInfo active;
+	static clWindow_ActiveWindow active;
 	if(!clWindow_activeWindowRead(&active)) { return; }
 	if(callback) { callback(&active); }
 	clWindow_activeWindowFree(&active);
@@ -104,6 +105,7 @@ bool clWindow_guiLoopBegin(void* guiData) {
 	[NSApplication sharedApplication];
 	[NSApp setActivationPolicy:NSApplicationActivationPolicyProhibited];
 	[NSApp run];
+	return true;
 }
 
 void clWindow_guiLoopStop(void) {

@@ -1,8 +1,8 @@
 #include <Carbon/Carbon.h>
 #include <IOKit/IOKitLib.h>
 #include <IOKit/hidsystem/IOHIDShared.h>
-#include <wchar.h>
 #include "crosslib/keyboard.h"
+#include "crosslib/string.h"
 
 static uint16_t translateKeyCode(clKeyboard_Key key) {
 	// https://stackoverflow.com/questions/3202629/where-can-i-find-a-list-of-mac-virtual-key-codes
@@ -72,7 +72,7 @@ bool clKeyboard_postModifier(clKeyboard_Modifier modifier, clKeyboard_Press pres
 	bzero(&event, sizeof(NXEventData));
 	IOGPoint loc = {0, 0};
 	kern_return_t kr = IOHIDPostEvent(globalKeyboardPort, NX_FLAGSCHANGED, loc, &event, kNXEventDataVersion, globalModifiers, true);
-	if(kr != KERN_SUCCESS) { printf("Error posting HID modifiers\n"); }
+	return (kr == KERN_SUCCESS);
 }
 
 bool clKeyboard_postKey(clKeyboard_Key key, clKeyboard_Press press) {
@@ -97,13 +97,19 @@ bool clKeyboard_postKey(clKeyboard_Key key, clKeyboard_Press press) {
 	return (kr == KERN_SUCCESS);
 }
 
+static int u16len(char16_t* string) {
+    int length = 0;
+    while(string[length]) { ++length; }
+    return length;
+}
+
 bool clKeyboard_postString(char* string) {
-	wchar_t* utf16 = clString_utf16from8(string); if(!utf16) { return false; }
+	char16_t* utf16 = clString_utf16from8(string); if(!utf16) { return false; }
 	
 	CGEventRef keyEvent = CGEventCreateKeyboardEvent(NULL, 0, true);
 	if(!keyEvent) { return false; }
 
-	size_t utf16Len = wcslen(utf16);
+	size_t utf16Len = u16len(utf16);
 	for(size_t index=0; index<utf16Len; ++index) {
 		CGEventKeyboardSetUnicodeString(keyEvent, 1, utf16+index);
 		CGEventPost(kCGSessionEventTap, keyEvent);

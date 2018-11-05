@@ -1,4 +1,5 @@
 #include "crosslib/thread.h"
+#include <stdlib.h>
 #include <pthread.h>
 #include <time.h>
 #include <unistd.h>
@@ -61,7 +62,31 @@ bool clThread_mutexCreate(clThread_MutexHandle* mutex) {
 }
 
 bool clThread_mutexLock(clThread_MutexHandle mutex) {
-	return (pthead_mutex_lock(mutex) == 0);
+	return (pthread_mutex_lock(mutex) == 0);
+}
+
+static int pthread_mutex_timedlock_macos(pthread_mutex_t* mutex, struct timespec* timeout, uint32_t milliseconds) {
+	struct timespec now;
+	int attemptResult = -1;
+	while(attemptResult != 0) {
+		attemptResult = pthread_mutex_trylock(mutex);
+		if(attemptResult == 0) { return 0; }
+
+		clock_gettime(CLOCK_REALTIME, &now);
+		if((now.tv_sec > timeout->tv_sec) || ((now.tv_sec == timeout->tv_sec) && (now.tv_nsec > timeout->tv_nsec))) { return -1; }
+
+		if(milliseconds > 100) {
+			clThread_sleep(100);
+			milliseconds -= 100;
+		} else if(milliseconds > 10) {
+			clThread_sleep(10);
+			milliseconds -= 10;
+		} else {
+			clThread_sleep(1);
+			milliseconds -= 1;
+		}
+	}
+	return attemptResult;
 }
 
 bool clThread_mutexTryLock(clThread_MutexHandle mutex, uint32_t milliseconds) {
@@ -72,7 +97,7 @@ bool clThread_mutexTryLock(clThread_MutexHandle mutex, uint32_t milliseconds) {
 	timeout.tv_sec  += (milliseconds / 1000);
 	timeout.tv_nsec += mod * 1000000;
 
-	return (pthread_mutex_timedlock(mutex, &timeout) == 0);
+	return (pthread_mutex_timedlock_macos(mutex, &timeout, milliseconds) == 0);
 }
 
 void clThread_mutexUnlock(clThread_MutexHandle mutex) {
